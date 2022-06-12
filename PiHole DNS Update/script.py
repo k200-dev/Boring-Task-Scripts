@@ -36,7 +36,7 @@ def compare_records(
     return pi_record_one == scan_record_one and pi_record_two == scan_record_two
 
 
-def update_records(ip, session, token, pi_records, scan_records):
+def update_records(ip, session, token, pi_records, scan_records, domains_order):
     success_count = 0
     for i in range(len(scan_records)):
         r = session.post(
@@ -55,7 +55,7 @@ def update_records(ip, session, token, pi_records, scan_records):
             f"http://{ip}/admin/scripts/pi-hole/php/customdns.php",
             data={
                 "action": "add",
-                "domain": f"{pi_records[i+1][0]}",
+                "domain": f"{domains_order[i]}",
                 "ip": f"{scan_records[i]}",
                 "token": token,
             },
@@ -68,7 +68,7 @@ def update_records(ip, session, token, pi_records, scan_records):
         return f"[+] All requests were successful"
 
 
-def scan_ips(port):
+def scan_ips(port, port_one, domains_order, d1, d2):
     scan_ips = ["192.168.1.231", "192.168.1.232", "192.168.1.233"]
 
     socket.setdefaulttimeout(1)
@@ -77,6 +77,10 @@ def scan_ips(port):
         result = sock.connect_ex((x, port))
         sock.close()
         if result == 0:
+            if port == port_one:
+                domains_order.append(d1)
+            else:
+                domains_order.append(d2)
             return x
 
 
@@ -88,11 +92,14 @@ def main():
         passwd = config["PASSWD"]
         port_one = config["P1"]
         port_two = config["P2"]
+        d1 = config["D1"]
+        d2 = config["D2"]
         ip = config["IP"]
 
         update_ips = []
-        update_ips.append(scan_ips(port_one))
-        update_ips.append(scan_ips(port_two))
+        domains_order = []
+        update_ips.append(scan_ips(port_one, port_one, domains_order, d1, d2))
+        update_ips.append(scan_ips(port_two, port_one, domains_order, d1, d2))
 
         for x in update_ips:
             if x is None:
@@ -105,7 +112,7 @@ def main():
         token = get_pi_token(ip, session)
         records_array = get_records(ip, session, token)
         records_array = records_array["data"]
-        print(update_records(ip, session, token, records_array, update_ips))
+        print(update_records(ip, session, token, records_array, update_ips, domains_order))
         print("[+] Records are now: \n\n{}".format(get_records(ip, session, token)))
         print("[+] Program will continue again in 5 minutes")
         time.sleep(300)
