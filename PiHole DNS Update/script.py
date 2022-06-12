@@ -1,7 +1,8 @@
 import requests
 import json
 import yaml
-import sys
+import time
+import socket
 from bs4 import BeautifulSoup
 
 
@@ -67,21 +68,41 @@ def update_records(ip, session, token, pi_records, scan_records):
         return f"[+] All requests were successful"
 
 
+def scan_ips(port):
+    scan_ips = ["192.168.1.231", "192.168.1.232", "192.168.1.233"]
+
+    socket.setdefaulttimeout(1)
+    for x in scan_ips:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex((x, port))
+        sock.close()
+        if result == 0:
+            return x
+
+
 def main():
-    with open("config.yaml", "r") as file:
-        config = yaml.safe_load(file)
+    while True:
+        with open("config.yaml", "r") as file:
+            config = yaml.safe_load(file)
 
-    passwd = config["PASSWD"]
-    ip = config["IP"]
-    sys.argv.pop(0)
+        passwd = config["PASSWD"]
+        port_one = config["P1"]
+        port_two = config["P2"]
+        ip = config["IP"]
 
-    session = requests.Session()
-    get_pi_session(passwd, ip, session)
-    token = get_pi_token(ip, session)
-    records_array = get_records(ip, session, token)
-    records_array = records_array["data"]
-    print(update_records(ip, session, token, records_array, sys.argv))
-    print("[+] Records are now: \n\n{}".format(get_records(ip, session, token)))
+        update_ips = []
+        update_ips.append(scan_ips(port_one))
+        update_ips.append(scan_ips(port_two))
+
+        session = requests.Session()
+        get_pi_session(passwd, ip, session)
+        token = get_pi_token(ip, session)
+        records_array = get_records(ip, session, token)
+        records_array = records_array["data"]
+        print(update_records(ip, session, token, records_array, update_ips))
+        print("[+] Records are now: \n\n{}".format(get_records(ip, session, token)))
+        print("[+] Program will continue again in 5 minutes")
+        time.sleep(300)
 
 
 if __name__ == "__main__":
