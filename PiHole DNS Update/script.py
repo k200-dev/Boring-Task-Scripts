@@ -94,6 +94,12 @@ def main():
         update_ips.append(scan_ips(port_one))
         update_ips.append(scan_ips(port_two))
 
+        for x in update_ips:
+            if x is None:
+                print("[-] An IP is invalid, restarting loop in 10 minutes")
+                time.sleep(600)
+                continue
+
         session = requests.Session()
         get_pi_session(passwd, ip, session)
         token = get_pi_token(ip, session)
