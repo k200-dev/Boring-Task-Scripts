@@ -30,8 +30,8 @@ def compare_records(
 ):
     pi_record_one = pi_records[1][1]
     pi_record_two = pi_records[2][1]
-    scan_record_one = scan_records[1]
-    scan_record_two = scan_records[2]
+    scan_record_one = scan_records[0]
+    scan_record_two = scan_records[1]
 
     return pi_record_one == scan_record_one and pi_record_two == scan_record_two
 
@@ -117,7 +117,9 @@ def main():
             print("[+] Records are the same, resuming in 5 minutes")
             time.sleep(300)
             continue
-        print(update_records(ip, session, token, records_array, update_ips, domains_order))
+        print(
+            update_records(ip, session, token, records_array, update_ips, domains_order)
+        )
         print("[+] Records are now: \n\n{}".format(get_records(ip, session, token)))
         print("[+] Program will continue again in 5 minutes")
         time.sleep(300)
