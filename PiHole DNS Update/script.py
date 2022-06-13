@@ -103,7 +103,7 @@ def main():
 
         for x in update_ips:
             if x is None:
-                print("[-] An IP is invalid, restarting loop in 10 minutes")
+                print("[-] An IP is invalid, restarting loop in 5 minutes")
                 time.sleep(300)
                 continue
 
