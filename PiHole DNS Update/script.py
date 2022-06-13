@@ -28,26 +28,31 @@ def compare_records(
     pi_records,
     scan_records,
 ):
-    pi_record_one = pi_records[1][1]
-    pi_record_two = pi_records[2][1]
-    scan_record_one = scan_records[0]
-    scan_record_two = scan_records[1]
-
+    try:
+        pi_record_one = pi_records[1][1]
+        pi_record_two = pi_records[2][1]
+        scan_record_one = scan_records[0]
+        scan_record_two = scan_records[1]
+    except IndexError:
+        return False
     return pi_record_one == scan_record_one and pi_record_two == scan_record_two
 
 
 def update_records(ip, session, token, pi_records, scan_records, domains_order):
     success_count = 0
     for i in range(len(scan_records)):
-        r = session.post(
-            f"http://{ip}/admin/scripts/pi-hole/php/customdns.php",
-            data={
-                "action": "delete",
-                "domain": f"{pi_records[i+1][0]}",
-                "ip": f"{pi_records[i+1][1]}",
-                "token": token,
-            },
-        )
+        try:
+            r = session.post(
+                f"http://{ip}/admin/scripts/pi-hole/php/customdns.php",
+                data={
+                    "action": "delete",
+                    "domain": f"{pi_records[i+1][0]}",
+                    "ip": f"{pi_records[i+1][1]}",
+                    "token": token,
+                },
+            )
+        except IndexError:
+            break
         if '{"success"' in r.text:
             success_count += 1
     for i in range(len(scan_records)):
