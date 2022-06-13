@@ -104,7 +104,7 @@ def main():
         for x in update_ips:
             if x is None:
                 print("[-] An IP is invalid, restarting loop in 10 minutes")
-                time.sleep(600)
+                time.sleep(300)
                 continue
 
         session = requests.Session()
@@ -112,6 +112,11 @@ def main():
         token = get_pi_token(ip, session)
         records_array = get_records(ip, session, token)
         records_array = records_array["data"]
+        check = compare_records(records_array, update_ips)
+        if check is True:
+            print("[+] Records are the same, resuming in 5 minutes")
+            time.sleep(300)
+            continue
         print(update_records(ip, session, token, records_array, update_ips, domains_order))
         print("[+] Records are now: \n\n{}".format(get_records(ip, session, token)))
         print("[+] Program will continue again in 5 minutes")
