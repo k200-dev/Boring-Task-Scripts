@@ -1,3 +1,4 @@
-# A collection of scripts I use to automate boring day to day tasks
+# Scripts I use to automate boring stuff
+    
 
 Just using GitHub to keep them version controlled
