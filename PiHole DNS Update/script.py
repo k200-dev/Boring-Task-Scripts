@@ -84,8 +84,10 @@ def scan_ips(port, port_one, domains_order, d1, d2):
         if result == 0:
             if port == port_one:
                 domains_order.append(d1)
+                print(f"[+] {x} has {port} open")
             else:
                 domains_order.append(d2)
+                print(f"[+] {x} has {port} open")
             return x
 
 
