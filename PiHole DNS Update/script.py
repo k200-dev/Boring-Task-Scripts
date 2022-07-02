@@ -114,7 +114,6 @@ def main():
         domains_order = []
         update_ips.append(scan_ips(port_one, port_one, domains_order, d1, d2))
         update_ips.append(scan_ips(port_two, port_one, domains_order, d1, d2))
-        update_ips = sorted(update_ips)
         invalidIP = False
 
         for x in update_ips:
@@ -125,6 +124,8 @@ def main():
         if invalidIP is True:
             time.sleep(300)
             continue
+        
+        update_ips = sorted(update_ips)
 
         session = requests.Session()
         get_pi_session(passwd, ip, session)
