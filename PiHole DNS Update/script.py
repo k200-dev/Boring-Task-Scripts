@@ -16,12 +16,19 @@ def get_pi_token(ip, session):
     return soup.find(id="token").get_text()
 
 
-def get_records(ip, session, token):
+def get_records(ip, session, token, d1='', d2='', check=False):
     r = session.post(
         f"http://{ip}/admin/scripts/pi-hole/php/customdns.php",
         data={"action": "get", "token": f"{token}"},
     )
-    return json.loads(r.text)
+    
+    result = (json.loads(r.text)["data"])
+    if check is True:
+        for x in result:
+            if x[0] != d1 and x[0] != d2:
+                result.remove(x)
+        
+    return sorted(result)
 
 
 def compare_records(
@@ -29,10 +36,10 @@ def compare_records(
     scan_records,
 ):
     try:
-        pi_record_one = pi_records[1][1]
-        pi_record_two = pi_records[2][1]
-        scan_record_one = scan_records[0]
-        scan_record_two = scan_records[1]
+        pi_record_one = pi_records[0][1]
+        pi_record_two = pi_records[1][1]
+        scan_record_one = scan_records[1]
+        scan_record_two = scan_records[0]
     except IndexError:
         return False
     return pi_record_one == scan_record_one and pi_record_two == scan_record_two
@@ -46,8 +53,8 @@ def update_records(ip, session, token, pi_records, scan_records, domains_order):
                 f"http://{ip}/admin/scripts/pi-hole/php/customdns.php",
                 data={
                     "action": "delete",
-                    "domain": f"{pi_records[i+1][0]}",
-                    "ip": f"{pi_records[i+1][1]}",
+                    "domain": f"{pi_records[i][0]}",
+                    "ip": f"{pi_records[i][1]}",
                     "token": token,
                 },
             )
@@ -107,6 +114,7 @@ def main():
         domains_order = []
         update_ips.append(scan_ips(port_one, port_one, domains_order, d1, d2))
         update_ips.append(scan_ips(port_two, port_one, domains_order, d1, d2))
+        update_ips = sorted(update_ips)
         invalidIP = False
 
         for x in update_ips:
@@ -121,8 +129,7 @@ def main():
         session = requests.Session()
         get_pi_session(passwd, ip, session)
         token = get_pi_token(ip, session)
-        records_array = get_records(ip, session, token)
-        records_array = records_array["data"]
+        records_array = get_records(ip, session, token, d1, d2, True)
         check = compare_records(records_array, update_ips)
         if check is True:
             print("[+] Records are the same, resuming in 5 minutes")
