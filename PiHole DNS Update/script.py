@@ -81,7 +81,7 @@ def update_records(ip, session, token, pi_records, scan_records, domains_order):
 
 
 def scan_ips(port, port_one, domains_order, d1, d2):
-    scan_ips = ["192.168.1.231", "192.168.1.232", "192.168.1.233"]
+    scan_ips = ["192.168.1.231", "192.168.1.232", "192.168.1.233", "192.168.1.228"]
 
     socket.setdefaulttimeout(1)
     for x in scan_ips:
