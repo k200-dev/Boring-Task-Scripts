@@ -23,11 +23,12 @@ def get_records(ip, session, token, d1='', d2='', check=False):
     )
     
     result = (json.loads(r.text)["data"])
+    loop_arr = result[:]
     if check is True:
-        for x in result:
+        for x in loop_arr:
             if x[0] != d1 and x[0] != d2:
                 result.remove(x)
-        
+    
     return sorted(result)
 
 
